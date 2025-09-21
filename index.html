@@ -1,0 +1,64 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>DHT22 ESP8266 Dashboard</title>
+  <script src="https://unpkg.com/mqtt/dist/mqtt.min.js"></script>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      background: #f4f7f9;
+      text-align: center;
+      padding: 40px;
+    }
+    h1 { color: #333; }
+    .card {
+      display: inline-block;
+      padding: 20px;
+      margin: 20px;
+      background: white;
+      border-radius: 10px;
+      box-shadow: 0px 4px 8px rgba(0,0,0,0.2);
+      min-width: 200px;
+    }
+    .value {
+      font-size: 2em;
+      font-weight: bold;
+      color: #0077cc;
+    }
+  </style>
+</head>
+<body>
+  <h1>DHT22 ESP8266 Live Data</h1>
+
+  <div class="card">
+    <h2>🌡️ Temperature</h2>
+    <p class="value" id="temp">-- °C</p>
+  </div>
+
+  <div class="card">
+    <h2>💧 Humidity</h2>
+    <p class="value" id="hum">-- %</p>
+  </div>
+
+  <script>
+    // Connect to HiveMQ WebSocket Broker
+    const client = mqtt.connect("wss://broker.hivemq.com:8884/mqtt");
+
+    client.on("connect", () => {
+      console.log("Connected to HiveMQ WebSocket");
+      client.subscribe("esp8266/dht22/temperature");
+      client.subscribe("esp8266/dht22/humidity");
+    });
+
+    client.on("message", (topic, message) => {
+      if (topic === "esp8266/dht22/temperature") {
+        document.getElementById("temp").innerText = message.toString() + " °C";
+      }
+      if (topic === "esp8266/dht22/humidity") {
+        document.getElementById("hum").innerText = message.toString() + " %";
+      }
+    });
+  </script>
+</body>
+</html>
